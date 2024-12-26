@@ -1,0 +1,31 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container mt-100">
+    {% if messages %}
+    <div class="alert alert-danger">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <h2>Ingresar CUIL</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="cuil">CUIL</label>
+            <input 
+                type="text" 
+                class="form-control" 
+                id="cuil" 
+                name="cuil" 
+                maxlength="11" 
+                pattern="\d*" 
+                required 
+                placeholder="Ingrese su CUIL"
+                title="Solo se permiten números sin guiones, con 11 dígitos.">
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Continuar</button>
+    </form>
+</div>
+{% endblock %}
