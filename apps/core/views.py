@@ -7,10 +7,18 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from libs.client_api import get_client_from_cuit
 import os
+from collections import defaultdict
 
-from .models import ModelArtic, ModelArticOnePrice, ModelImgArtic
+from .models import ModelArtic, ModelArticOnePrice, ModelImgArtic, ModelTag
 from libs.xlsx_img_extract import extraer_imagenes_excel
 from libs.xlsxTools import get_artcis_from_xlsx
+
+
+from concurrent.futures import ThreadPoolExecutor
+import os
+from django.db.models import Q
+from django.shortcuts import render, redirect
+from django.contrib import messages
 
 
 # main / index
@@ -21,15 +29,15 @@ class ViewSearchArtic(View):
         #from libs.siaacTools import reed_artics, update_artics # ESTO ES ASI PORQUE SINO HAY IMPORTACION REDUNDANTE y da un error
     
         brute_cuit = request.GET.get('cuil')
-        print(f"cuit_brute: {brute_cuit}")
+
 
         if brute_cuit:
             cuit = brute_cuit
             client = get_client_from_cuit(cuit)
-            print(client)
+
             if client:
                 list_number = str(client.qlist)
-                print(f"lista num {list_number}")
+
             else:
                 print("cuil no registrado")
                 messages.error(request, 'CUIL No registrado. Por favor, utiliza el que aparece en su factura.')
@@ -45,7 +53,7 @@ class ViewSearchArtic(View):
         artics = ModelArtic.objects.filter(~Q(imgs_path__isnull=True), ~Q(imgs_path=""), active=True)
         #artics = ModelArtic.objects.filter(active=True)
 
-        artics_one_price = []
+        artics_one_price = {}
 
         with open("listas-excepciones.txt", "r") as f:
             exclude_lists = f.read().split("\n") # obtenemos las listas q hay q exluir
@@ -56,39 +64,50 @@ class ViewSearchArtic(View):
             exclude_codes = f.read().split("\n") # obtenemos los codigos q hay q exluir
 
 
-        for artic in artics:
-            current_img_path = artic.imgs_path.replace(comon_folder, "")
-            if not current_img_path in exclude_lists and not artic.code in exclude_codes:
-                
-                current_artic = ModelArticOnePrice().create_from_artic(artic,list_number)
-                # if "PIW" in artic.code:
-                #     artic.imgs_path = artic.imgs_path[:-1]
-                #     artic.save()
-                #     print(artic.code)
-                #     print(artic.imgs_path)
-                #     print(images)
-                if artic.imgs_path:
+        all_categoris_tags = ModelTag.objects.all()
 
-                    try:
-                        images = os.listdir(artic.imgs_path + "/xl/media") 
-                        
-                    except FileNotFoundError:
+        for category in all_categoris_tags: # separamos por categorias
+            agrups_artics = artics.filter(tags=category)
+            artics_of_category = []
+            artics_aroup_list = defaultdict(list) # articulos de la misma lista de precios
+            for artic in agrups_artics: # se obtinee el precio y las imagenes correspondiente al cliente para cad articulo
+
+                current_img_path = artic.imgs_path.replace(comon_folder, "")
+                if not current_img_path in exclude_lists and not artic.code in exclude_codes: # los q no tiene imagnes asignadas no hay q mostrarlos
+                    
+                    current_artic = ModelArticOnePrice().create_from_artic(artic,list_number) # obtiene el precio correspndiente
+
+                    if artic.imgs_path:
+
+                        try:
+                            images = os.listdir(artic.imgs_path + "/xl/media") 
+                            
+                        except FileNotFoundError:
+                            images = []
+                    else:
                         images = []
-                else:
-                    images = []
 
-                path_images = []
-                for image in images:
-                    path_images.append('/' + artic.imgs_path + "/xl/media/" + image)
+                    path_images = []
+                    for image in images:
+                        path_images.append('/' + artic.imgs_path + "/xl/media/" + image)
 
-                artics_one_price.append((current_artic, path_images))
-                artics_one_price.sort(
-                        key=lambda item: item[0].description
-                    )
+                    # artics_of_category.append((current_artic, path_images))
+                    # artics_of_category.sort(
+                    #         key=lambda item: item[0].description
+                    #     )
+
+                    artics_aroup_list[current_img_path].append((current_artic, path_images))
+
+            # Convertimos el diccionario agrupado en la estructura deseada
+            for img_path, articles in artics_aroup_list.items():
+                articles.sort(key=lambda item: item[0].description)  # Ordenar los artículos
+                artics_of_category.append({
+                    "name": img_path,
+                    "artics": articles
+                })
+            artics_one_price[category.name] = artics_of_category
 
 
-
-        
         return render(request, 'core/search_artic.html',{'artics': artics_one_price})
 
 
@@ -176,3 +195,62 @@ class SiaacFileUploadView(View):
         update_artics(siaac_artics)
 
         return JsonResponse({'message': 'File uploaded successfully', 'filename': file.name, 'sistem': sistem}, status=200)
+
+
+
+def create_tags(request):
+    def listar_archivos_y_carpetas(ruta):
+        """
+        Lista todos los archivos y carpetas de una ruta dada.
+
+        :param ruta: Ruta del directorio que se desea listar.
+        :return: Dos listas: una con los archivos y otra con las carpetas.
+        """
+        archivos = []
+        carpetas = []
+
+        try:
+            for elemento in os.listdir(ruta):
+                elemento_path = os.path.join(ruta, elemento)
+                if os.path.isfile(elemento_path):
+                    archivos.append(elemento)
+                elif os.path.isdir(elemento_path):
+                    carpetas.append(elemento)
+        except FileNotFoundError:
+            print(f"La ruta {ruta} no existe.")
+        except PermissionError:
+            print(f"Permiso denegado para acceder a {ruta}.")
+
+        return carpetas, archivos
+
+
+    (folders, files) = listar_archivos_y_carpetas("Y:/ACTUALIZAR PRECIOS/DB/LISTAS Drive")
+
+    for file in files:
+        file_name = file.replace(".xlsx", "")
+        if file_name[-1] == ".":
+            file_name = file_name[:-1]
+        artics_agroup = ModelArtic.objects.filter(imgs_path=file)
+        for current_artic in artics_agroup:
+            current_artic.add_tag("Otros")
+
+
+    for folder in folders:
+        (sub_folders, files) = listar_archivos_y_carpetas(f"Y:/ACTUALIZAR PRECIOS/DB/LISTAS Drive/{folder}")
+
+
+        for file in files:
+            file_name = file.replace(".xlsx", "")
+            if file_name[-1] == ".":
+                file_name = file_name[:-1]
+            artics_agroup = ModelArtic.objects.filter(imgs_path__icontains=file_name)
+
+
+            for current_artic in artics_agroup:
+                txt_tag = folder
+                current_artic.add_tag(txt_tag)
+
+
+    return HttpResponse("ok")
+
+
