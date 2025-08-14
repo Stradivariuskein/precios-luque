@@ -43,3 +43,6 @@ def send_email_via_gmail_api(to, subject, message_text):
     except Exception as e:
         print("Error enviando correo:", e)
         return None
+    
+if __name__ == "__main__":
+    get_gmail_service()
