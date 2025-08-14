@@ -1,0 +1,54 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  .success-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+  }
+
+  .success-message {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 500px;
+    margin-bottom: 30px;
+    font-size: 1.2rem;
+  }
+
+  .wp-link img {
+    width: 80px;
+    animation: pulse 1.5s infinite;
+    transition: transform 0.3s ease;
+  }
+
+  .wp-link img:hover {
+    transform: scale(1.1);
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+</style>
+
+<div class="success-container">
+  <div class="success-message">
+    <p>En breve nuestro equipo revisará tu solicitud y te daremos acceso.</p>
+    <p>Para agilizar el procesos solisitalo por WhatsApp</p>
+
+  </div>
+
+  <a class="wp-link" href="https://wa.me/5491130753001?text=Necesito+que+me+den+el+alta+en+la+pagina">
+    <img src="{% static 'img/logo-wp.png' %}" alt="Logo WhatsApp">
+  </a>
+</div>
+{% endblock content %}

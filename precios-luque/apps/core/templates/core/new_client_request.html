@@ -1,0 +1,97 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    .form-container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 30px;
+        background-color: #f8f9fa; /* gris claro */
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-container label {
+        display: block;
+        margin-top: 15px;
+        font-weight: bold;
+    }
+
+    .form-container input {
+        width: 100%;
+        padding: 8px 10px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .form-container button {
+        margin-top: 20px;
+        width: 100%;
+        padding: 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .form-container button:hover {
+        background-color: #0056b3;
+    }
+
+    .form-error {
+        color: red;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    textarea {
+        width: 100%;
+    }
+</style>
+
+<div class="form-container"> 
+    {% if error %}
+        <p class="form-error">{{ error }}</p>
+    {% endif %}
+    <h2>Solicitud de registro</h2>
+    <form method="post">
+        {% csrf_token %}
+
+        <label>CUIT:</label>
+        <input type="text" name="cuil" value="{{ form.cuil }}" required>
+
+        <label>Nombre:</label>
+        <input type="text" name="name" value="{{ form.name }}" required>
+
+        <label>Empresa:</label>
+        <input type="text" name="empress_name" value="{{ form.empress_name }}" required>
+
+        <label>Teléfono:</label>
+        <input type="text" name="tel" value="{{ form.tel }}" required>
+
+        <label>Email:</label>
+        <input type="email" name="email" value="{{ form.email }}" required>
+
+        <label>Tipo de negocio:</label>
+        <select name="bussines" required>
+            <option value="" disabled {% if not form.bussines %}selected{% endif %}>Seleccione una opción</option>
+            {% for value, label in bussines_choices %}
+                <option value="{{ value }}" {% if form.bussines == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Mensaje (opcional):</label>
+        <textarea name="message" rows="4">{{ form.message }}</textarea>
+
+        <button type="submit">Enviar solicitud</button>
+    </form>
+</div>
+
+{% endblock content %}

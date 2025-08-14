@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  precios_luque:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: catalogo_luque
+    ports:
+      - "11007:8000"
+    volumes:
+      - ./precios-luque:/app
+    working_dir: /app
+    entrypoint: ["./run_server.sh"]
+    restart: always

@@ -1,0 +1,171 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+
+{% block content %}
+<style>
+    .form-container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 30px;
+        background-color: #f8f9fa; /* gris claro */
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-container label {
+        display: block;
+        margin-top: 15px;
+        font-weight: bold;
+    }
+
+    .form-container input {
+        width: 100%;
+        padding: 8px 10px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .form-container button {
+        margin-top: 20px;
+        width: 100%;
+        padding: 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .form-container button:hover {
+        background-color: #0056b3;
+    }
+
+    .form-error {
+        color: red;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    textarea {
+        width: 100%;
+    }
+</style>
+
+<div class="form-container"> 
+
+    {% if error %}
+        <p class="form-error">{{ error }}</p>
+    {% endif %}
+
+    <h2>Alta de cliente</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <label>CUIT:</label>
+        <input type="text" name="cuil" value="{{ initial.cuil }}" required><br>
+
+        <label>Nombre:</label>
+        <input type="text" name="name" value="{{ initial.name }}" required><br>
+
+        <label>Empresa:</label>
+        <input type="text" name="empress_name" value="{{ initial.empress_name }}" required><br>
+
+        <label>Teléfono:</label>
+        <input type="text" name="tel" value="{{ initial.tel }}" required><br>
+
+        <label>Email:</label>
+        <input type="email" name="email" value="{{ initial.email }}" required><br>
+
+
+        <label>Tipo de negocio:</label>
+        <select name="bussines" required>
+            <option value="" disabled {% if not initial.bussines %}selected{% endif %}>Seleccione una opción</option>
+            {% for value, label in bussines_choices %}
+                <option value="{{ value }}" {% if initial.bussines == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select><br>
+        
+        <label>Mensaje (opcional):</label><br>
+        <textarea name="message" rows="4">{{ initial.message }}</textarea><br>
+
+        <label>Tipo de lista:</label>
+        <select name="list_number" required>
+            <option value="" disabled selected>Seleccionar tipo de lista</option>
+            {% for value, label in list_number_choices %}
+                <option value="{{ value }}" {% if value == initial.list_number %}selected{% endif %}>
+                    {{ label }}
+                </option>
+            {% endfor %}
+        </select><br>
+
+        <label>Listas de precios:</label>
+        <select id="tag_selector">
+            <option value="" disabled selected>Seleccionar lista</option>
+            {% for tag in tags %}
+                <option value="{{ tag.id }}" data-name="{{ tag.name }}">{{ tag.name }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Campo oculto donde se almacenan los IDs separados por coma -->
+        <input type="hidden" name="lists_tags" id="lists_tags_input">
+
+        <ul id="selected_tags_list"></ul>
+
+        <button type="submit">Crear</button>
+    </form>
+</div>
+<script>
+    const tagSelector = document.getElementById("tag_selector");
+    const tagsInput = document.getElementById("lists_tags_input");
+    const selectedTagsList = document.getElementById("selected_tags_list");
+
+    let selectedTags = []; // [{id: "1", name: "Lista A"}, ...]
+
+    tagSelector.addEventListener("change", () => {
+        const selectedId = tagSelector.value;
+        const selectedName = tagSelector.options[tagSelector.selectedIndex].dataset.name;
+
+        // Si no está ya agregado, lo agregamos
+        if (!selectedTags.find(tag => tag.id === selectedId)) {
+            selectedTags.push({ id: selectedId, name: selectedName });
+            renderTagList();
+        }
+
+        tagSelector.selectedIndex = 0;
+    });
+
+    function renderTagList() {
+        // actualizar input oculto
+        tagsInput.value = selectedTags.map(tag => tag.id).join(",");
+
+        // limpiar la lista y volver a construirla
+        selectedTagsList.innerHTML = "";
+        selectedTags.forEach(tag => {
+            const li = document.createElement("li");
+            li.textContent = tag.name + " ";
+
+            const removeBtn = document.createElement("button");
+            removeBtn.type = "button";
+            removeBtn.textContent = "🗑️";
+            removeBtn.style.marginLeft = "10px";
+            removeBtn.style.maxWidth = "31px";
+            removeBtn.style.borderRadius = "50%";
+            removeBtn.style.backgroundColor = "#eb5656";
+            removeBtn.style.padding = "4px";
+            removeBtn.addEventListener("click", () => {
+                selectedTags = selectedTags.filter(t => t.id !== tag.id);
+                renderTagList();
+            });
+
+            li.appendChild(removeBtn);
+            selectedTagsList.appendChild(li);
+        });
+    }
+</script>
+{% endblock content %}

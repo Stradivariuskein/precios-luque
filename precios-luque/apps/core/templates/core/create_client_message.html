@@ -1,0 +1,84 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  .success-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+  }
+
+  .success-message {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 500px;
+    margin-bottom: 30px;
+    font-size: 1.2rem;
+    position: relative;
+  }
+
+  .copy-button {
+    margin-top: 15px;
+    padding: 8px 16px;
+    background-color: #28a745;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+  }
+
+  .copy-button:hover {
+    background-color: #218838;
+  }
+
+  .notification {
+    position: absolute;
+    top: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .notification.show {
+    opacity: 1;
+  }
+</style>
+
+<div class="success-container">
+  <div class="success-message">
+    <p>{{ msj }}</p>
+    {% if link %}
+    <p>Link: {{ link }}</p>
+    <button id="copy-btn" class="copy-button">Copiar link</button>
+    <div id="notification" class="notification">Link copiado</div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  document.getElementById('copy-btn').addEventListener('click', function () {
+    const textToCopy = "{{ link }}";
+    navigator.clipboard.writeText(textToCopy).then(function () {
+      const notification = document.getElementById('notification');
+      notification.classList.add('show');
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 2000);
+    });
+  });
+</script>
+{% endblock content %}

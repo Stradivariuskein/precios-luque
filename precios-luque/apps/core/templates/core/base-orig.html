@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Luque</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css" integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+    <link rel="stylesheet" href="{% static 'css/my_styles.css' %}">
+</head>
+<body>
+    <nav class="movil-nav navbar navbar-light bg-light p-3">
+        <div class="nav-div-logo d-flex col-12 col-md-3 col-lg-2 mb-2 mb-lg-0 flex-wrap flex-md-nowrap justify-content-between">
+            <a class="navbar-brand" href="/">
+                <!-- usar la forma de subir imagenes de dejango. esta manera esta mal-->
+                <img class="logo-luque" src="{% static 'img/logo-luque.png' %}" alt="Logo luque">
+            </a>
+            <button class="navbar-toggler d-md-none collapsed mb-3" type="button" data-toggle="collapse" data-target="#sidebar" aria-controls="sidebar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+        <div class="col-12 col-md-4 col-lg-2 search-imput">
+          {% block search_table %}
+            
+          {% endblock search_table %}
+        </div>
+        <div>
+
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-expanded="false">
+                    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0 0 50 50"
+                    style="padding: 0%; height: 20px; width: 20px ;fill:#FFFFFF;">
+                        <path d="M47.16,21.221l-5.91-0.966c-0.346-1.186-0.819-2.326-1.411-3.405l3.45-4.917c0.279-0.397,0.231-0.938-0.112-1.282 l-3.889-3.887c-0.347-0.346-0.893-0.391-1.291-0.104l-4.843,3.481c-1.089-0.602-2.239-1.08-3.432-1.427l-1.031-5.886 C28.607,2.35,28.192,2,27.706,2h-5.5c-0.49,0-0.908,0.355-0.987,0.839l-0.956,5.854c-1.2,0.345-2.352,0.818-3.437,1.412l-4.83-3.45 c-0.399-0.285-0.942-0.239-1.289,0.106L6.82,10.648c-0.343,0.343-0.391,0.883-0.112,1.28l3.399,4.863 c-0.605,1.095-1.087,2.254-1.438,3.46l-5.831,0.971c-0.482,0.08-0.836,0.498-0.836,0.986v5.5c0,0.485,0.348,0.9,0.825,0.985 l5.831,1.034c0.349,1.203,0.831,2.362,1.438,3.46l-3.441,4.813c-0.284,0.397-0.239,0.942,0.106,1.289l3.888,3.891 c0.343,0.343,0.884,0.391,1.281,0.112l4.87-3.411c1.093,0.601,2.248,1.078,3.445,1.424l0.976,5.861C21.3,47.647,21.717,48,22.206,48 h5.5c0.485,0,0.9-0.348,0.984-0.825l1.045-5.89c1.199-0.353,2.348-0.833,3.43-1.435l4.905,3.441 c0.398,0.281,0.938,0.232,1.282-0.111l3.888-3.891c0.346-0.347,0.391-0.894,0.104-1.292l-3.498-4.857 c0.593-1.08,1.064-2.222,1.407-3.408l5.918-1.039c0.479-0.084,0.827-0.5,0.827-0.985v-5.5C47.999,21.718,47.644,21.3,47.16,21.221z M25,32c-3.866,0-7-3.134-7-7c0-3.866,3.134-7,7-7s7,3.134,7,7C32,28.866,28.866,32,25,32z"></path>
+                    </svg>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <li><a class="dropdown-item" href="#">Ruta del sistema</a></li>
+                    <li><a class="dropdown-item" href="#">ruta de las listas</a></li>
+                    <li><a class="dropdown-item" href="#">Credenciales del drive</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+                <div class="position-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" aria-current="page" href="{% url 'listas-xlsx' %}">
+                            <div class="row">
+                                <div class="col-md-2 ">
+                                    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24" viewBox="0,0,256,256"
+                                    style="fill:#000000;">
+                                    <g fill="rgb(97, 160, 76)" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(5.12,5.12)"><path d="M28.8125,0.03125l-28,5.3125c-0.47266,0.08984 -0.8125,0.51953 -0.8125,1v37.3125c0,0.48047 0.33984,0.91016 0.8125,1l28,5.3125c0.0625,0.01172 0.125,0.03125 0.1875,0.03125c0.23047,0 0.44531,-0.07031 0.625,-0.21875c0.23047,-0.19141 0.375,-0.48437 0.375,-0.78125v-48c0,-0.29687 -0.14453,-0.58984 -0.375,-0.78125c-0.23047,-0.19141 -0.51953,-0.24219 -0.8125,-0.1875zM32,6v7h2v2h-2v5h2v2h-2v5h2v2h-2v6h2v2h-2v7h15c1.10156,0 2,-0.89844 2,-2v-34c0,-1.10156 -0.89844,-2 -2,-2zM36,13h8v2h-8zM6.6875,15.6875h5.125l2.6875,5.59375c0.21094,0.44141 0.39844,0.98438 0.5625,1.59375h0.03125c0.10547,-0.36328 0.30859,-0.93359 0.59375,-1.65625l2.96875,-5.53125h4.6875l-5.59375,9.25l5.75,9.4375h-4.96875l-3.25,-6.09375c-0.12109,-0.22656 -0.24609,-0.64453 -0.375,-1.25h-0.03125c-0.0625,0.28516 -0.21094,0.73047 -0.4375,1.3125l-3.25,6.03125h-5l5.96875,-9.34375zM36,20h8v2h-8zM36,27h8v2h-8zM36,35h8v2h-8z"></path></g></g>
+                                    </svg>
+                                </div>
+                                <div class="col-md-10">
+                                    <span class="ml-2">Listas de precios</span>
+                                </div>
+                            </div>
+                          </a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="{% url 'artics' %}">
+                            <div class="row">
+                            <div class="col-md-2 ml-0">
+                            <svg fill="#100e6d" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                                width="28px" height="28px" viewBox="0 0 62.381 62.38"
+                                xml:space="preserve">
+                                <g>
+                                    <g>
+                                        <path d="M60.265,0.289H30.401c-1.17,0-2.119,0.949-2.119,2.12v14.738c0,1.17,0.949,2.119,2.119,2.119h4.281v37.053
+                                            c0,1.023,0.729,1.901,1.738,2.086l8.53,1.553c0.125,0.021,0.253,0.031,0.38,0.031s0.256-0.012,0.381-0.031l8.53-1.553
+                                            c1.011-0.185,1.741-1.062,1.741-2.086V19.266h4.278c1.17,0,2.119-0.949,2.119-2.119V2.408C62.386,1.237,61.437,0.289,60.265,0.289
+                                            z M34.683,15.026h-2.161V4.528h2.161V15.026z M45.336,55.715l-6.414-1.166v-5.208l11.641,5.424L45.336,55.715z M51.747,50.64
+                                            l-12.825-5.975v-2.77l12.825,5.977V50.64z M51.747,43.195l-12.825-5.978v-3.146l12.825,5.979V43.195z M51.747,35.376L38.922,29.4
+                                            v-3.887l12.825,5.977V35.376z M51.747,26.813l-12.825-5.976v-1.571h12.825V26.813z M58.147,15.026L58.147,15.026h-4.281H38.922
+                                            V4.528h19.227L58.147,15.026L58.147,15.026z"/>
+                                        <path d="M25.818,33.667c-0.38-0.655-1.079-1.061-1.836-1.061H9.407c-0.758,0-1.457,0.402-1.836,1.061L0.284,46.291
+                                            c-0.379,0.656-0.379,1.465,0,2.12l7.287,12.622c0.379,0.656,1.078,1.06,1.836,1.06h14.576c0.757,0,1.457-0.403,1.835-1.06
+                                            l7.288-12.622c0.379-0.655,0.379-1.464,0-2.12L25.818,33.667z M22.759,57.853H10.631L4.567,47.351l6.063-10.504h12.128
+                                            l6.065,10.504L22.759,57.853z"/>
+                                        <path d="M16.694,39.845c-4.347,0-7.883,3.536-7.883,7.885c0,4.35,3.536,7.883,7.883,7.883c4.348,0,7.885-3.533,7.885-7.883
+                                            C24.579,43.381,21.042,39.845,16.694,39.845z M16.694,51.374c-2.01,0-3.645-1.636-3.645-3.646c0-2.012,1.635-3.646,3.645-3.646
+                                            c2.01,0,3.645,1.636,3.645,3.646C20.339,49.738,18.704,51.374,16.694,51.374z"/>
+                                    </g>
+                                </g>
+                            </svg>
+                        </div>
+                            <div class="col-md-10">
+                            <span class="ml-2">Articulos y precios</span>
+                        </div>
+                    </div>
+                          </a>
+                      </ul>
+                </div>
+            </nav>
+            <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4">
+                
+                            
+                {% block content %}
+                    
+                {% endblock content %}
+                <footer class="mb-4 pt-5 d-flex text-center justify-content-between">
+                    <span class="by-alan">By Alan Luque</span>
+                    
+                </footer>
+            </main>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js" integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/" crossorigin="anonymous"></script>
+   
+    <!-- Github buttons -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <script>
+        new Chartist.Line('#traffic-chart', {
+            labels: ['January', 'Februrary', 'March', 'April', 'May', 'June'],
+            series: [
+                [23000, 25000, 19000, 34000, 56000, 64000]
+            ]
+            }, {
+            low: 0,
+            showArea: true
+        });
+    </script>
+    <script src="{%static 'js/script.js'%}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</body>
+</html>

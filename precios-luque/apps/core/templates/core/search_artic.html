@@ -1,0 +1,324 @@
+
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block search_table %}
+
+{% comment %} <div class="container"> 
+    <div class="w-75 p-auto mx-auto"> 
+
+        <div class="input-group">
+            <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nombre o códigos..." onkeyup="startSearchTimer(searchArtic3)">
+        </div>
+
+    </div>
+</div> {% endcomment %}
+    
+{% endblock search_table %}
+    
+
+{% block content %}
+
+<div id="top" vclass="my-5">
+    <div class="margin-auto my-5 text-center">
+        <div class="sticky-button-container">
+            <a href="#top" class="btn btn-primary scrollToTop">↑</a>
+        </div>
+        <h1 class="title">Articulos</h1>
+    </div>
+
+    <a href="/download/?cuil={{ cuit }}" class="download-link" title="Descargar PDF">
+        <svg width="40px" height="40px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
+            <title>download-cloud</title>
+            <path d="M0 16q0 2.912 1.824 5.088t4.576 2.752q0.032 0 0.032-0.032v-0.064t0.032-0.032q0.544-1.344 1.344-2.176t2.208-1.184v-2.336q0-2.496 1.728-4.256t4.256-1.76 4.256 1.76 1.76 4.256v2.336q1.376 0.384 2.176 1.216t1.344 2.144l0.096 0.288h0.384q2.464 0 4.224-1.76t1.76-4.224v-2.016q0-2.464-1.76-4.224t-4.224-1.76q-0.096 0-0.32 0.032 0.32-1.152 0.32-2.048 0-3.296-2.368-5.632t-5.632-2.368q-2.88 0-5.056 1.824t-2.784 4.544q-1.152-0.352-2.176-0.352-3.296 0-5.664 2.336t-2.336 5.664v1.984zM10.016 25.824q-0.096 0.928 0.576 1.6l4 4q0.576 0.576 1.408 0.576t1.408-0.576l4-4q0.672-0.672 0.608-1.6-0.064-0.32-0.16-0.576-0.224-0.576-0.736-0.896t-1.12-0.352h-1.984v-5.984q0-0.832-0.608-1.408t-1.408-0.608-1.408 0.608-0.576 1.408v5.984h-2.016q-0.608 0-1.12 0.352t-0.736 0.896q-0.096 0.288-0.128 0.576z"></path>
+        </svg>
+    </a>
+
+    <div class="table-responsive">
+        <div class="container mt-4">
+            
+            <div class="tab-content mt-3" id="categoryTabContent">
+                <h2>Listas de precios</h2>
+                <div class="tab-pane fade active show" 
+                id="content-all" 
+                role="tabpanel" 
+                aria-labelledby="tab-all">
+
+                <!-- Botones agrupados por categoría -->
+                {% for category, items_agrup in artics.items %}
+                <h4 class="mt-4 text-center">{{ category }}</h4>
+                <div class="mb-3 text-center buton-list">
+                    {% for items in items_agrup %}
+                        <button class="btn btn-href-primary subcategory-btn btn-list" 
+                                data-category="all" 
+                                data-subgroup="{{ forloop.parentloop.counter }}-{{ forloop.counter }}">
+                            {{ items.name }}
+                        </button>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+
+                <!-- Tablas por subgrupo (subcategory), separadas igual que en otras pestañas -->
+                {% for category, items_agrup in artics.items %}
+                {% for items in items_agrup %}
+                    <div class="subcategory-table" 
+                            id="table-category-all-subgroup-{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
+                            >
+                        <h5 class="text-center mt-3 mb-2">{{ category }} - {{ items.name }}</h5>
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr class="text-center">
+                                    <th style="background-color: #f13c3c;">Codigo</th>
+                                    <th style="background-color: #f13c3c; min-width: 25rem;">Descripcion</th>
+                                    <th style="background-color: #f13c3c;">Precio</th>
+                                    <th style="background-color: #f13c3c;">Imagenes</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-body">
+                                {% for item in items.artics %}
+                                <tr>
+                                    <td data-label="Codigo">{{ item.0.code }}</td>
+                                    <td data-label="Descripcion"><p class="description">{{ item.0.description }}</p></td>
+                                    <td data-label="Precio">{{ item.0.formatted_price }}</td>
+                                    <td class="td-img">
+                                        <img src="{{ item.1.0 }}" 
+                                                class="img-thumbnail" 
+                                                style="cursor: pointer;" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#imageModal" 
+                                                data-image="{{ item.1.0 }}" 
+                                                data-images="{{ item.1|join:',' }}">
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endfor %}
+                {% endfor %}
+                </div>
+
+                {% for category, items_agrup in artics.items %}
+                <div class="tab-pane fade" 
+                     id="content-{{ forloop.counter }}" 
+                     role="tabpanel" 
+                     aria-labelledby="tab-{{ forloop.counter }}">
+                     
+                    <!-- Botones dinámicos para los subgrupos -->
+                    <div class="mb-3 text-center buton-list">
+                        {% for items in items_agrup %}
+                        <button class="btn btn-href-primary subcategory-btn btn-list" 
+                                data-category="{{ forloop.parentloop.counter }}" 
+                                data-subgroup="{{ forloop.counter }}">
+                            {{ items.name }}
+                        </button>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Tablas dinámicas para los subgrupos -->
+                    {% for items in items_agrup %}
+                    <div class="subcategory-table" 
+                         id="table-category-{{ forloop.parentloop.counter }}-subgroup-{{ forloop.counter }}" 
+                         {% comment %} style="display: {% if forloop.first %}block{% else %}none{% endif %};" {% endcomment %}
+                         >
+                        <table class="table table-striped table-bordered" >
+                            <thead>
+                                <tr class="text-center">
+                                    <th style="background-color: #f13c3c;">Codigo</th>
+                                    <th style="background-color: #f13c3c; min-width: 25rem;">Descripcion</th>
+                                    <th style="background-color: #f13c3c;">Precio</th>
+                                    <th style="background-color: #f13c3c;">Imagenes</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-body">
+                                <h3>{{ items.name }}</h3>
+                                {% for item in items.artics %}
+                                
+                                <tr>
+                                    <td data-label="Codigo">{{ item.0.code }}</td>
+                                    <td data-label="Descripcion"><p class="description">{{ item.0.description }}</p></td>
+                                    <td data-label="Precio">{{ item.0.formatted_price }}</td>
+                                    <td class="td-img">
+                                        <img src="{{ item.1.0 }}" 
+                                             class="img-thumbnail" 
+                                             style="cursor: pointer;" 
+                                             data-bs-toggle="modal" 
+                                             data-bs-target="#imageModal" 
+                                             data-image="{{ item.1.0 }}" 
+                                             data-images="{{ item.1|join:',' }}">
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal listats -->
+<div class="modal fade" id="tableModal" tabindex="-1" aria-labelledby="tableModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tableModalLabel">Detalle de Subcategoría</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="container"> 
+                <div class="w-75 p-auto mx-auto mt-2"> 
+            
+                    <div class="input-group">
+                        <input type="text" id="modalInput" class="form-control" placeholder="Buscar por nombre o códigos..." onkeyup="startSearchTimer(searchArtic3, 'modalInput')">
+                    </div>
+            
+                </div>
+            </div>
+            <div class="modal-body">
+                <!-- Aquí se inyectará la tabla -->
+                <div id="modalTableContent"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+ <!-- image modal-->
+ 
+ <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Galería de Imágenes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modal-image" src="" class="img-fluid modal-img" alt="Imagen del artículo">
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-secondary" id="prev-image">&larr; Anterior</button>
+                <button type="button" class="btn btn-secondary" id="next-image">Siguiente &rarr;</button>
+            </div>
+        </div>
+    </div>
+</div>
+<a class="wp-link" href="https://wa.me/5491130753001?text=Hola%20mire%20la%20lista%20de%20precios%20y%20quiero%20mas%20informacion">
+    <img src="{% static 'img/logo-wp.png' %}" alt="Logo WhatsApp">
+</a>
+    
+    <script>
+        {% comment %} tablas dinamicas {% endcomment %}
+        document.addEventListener("DOMContentLoaded", function () {
+            const buttons = document.querySelectorAll(".subcategory-btn");
+    
+            buttons.forEach(button => {
+                button.addEventListener("click", function () {
+                    // Obtener los atributos data-category y data-subgroup
+                    const category = button.getAttribute("data-category");
+                    const subgroup = button.getAttribute("data-subgroup");
+    
+                    // Construir el ID de la tabla correspondiente
+                    const tableId = `table-category-${category}-subgroup-${subgroup}`;
+    
+                    // Obtener la tabla del DOM
+                    const table = document.getElementById(tableId);
+    
+                    // Si la tabla existe, inyectarla en el modal
+                    if (table) {
+                        const modalContent = document.getElementById("modalTableContent");
+                        modalContent.innerHTML = table.outerHTML; // Copia la tabla al modal
+    
+                        // Mostrar el modal
+                        const tableModal = new bootstrap.Modal(document.getElementById("tableModal"));
+                        tableModal.show();
+                    }
+                });
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const modalImage = document.getElementById('modal-image');
+            const prevButton = document.getElementById('prev-image');
+            const nextButton = document.getElementById('next-image');
+            let images = [];
+            let currentIndex = 0;
+        
+            // Delegación de eventos: escucha clics en el contenedor de las imágenes
+            document.body.addEventListener('click', function (event) {
+                if (event.target.matches('img[data-bs-toggle="modal"]')) {
+                    const imageUrl = event.target.dataset.image;
+                    
+                    images = event.target.dataset.images.split(',');
+                    console.log(`images ${images}`)
+                    currentIndex = images.indexOf(imageUrl);
+        
+                    modalImage.src = imageUrl;
+                    console.log("Imagen cargada en el modal:", imageUrl);
+                }
+            });
+        
+            // Botón anterior
+            prevButton.addEventListener('click', function () {
+                console.log("hay click")
+                if (images.length > 0 && currentIndex > 0) {
+                    console.log(`images ${images}`)
+                    currentIndex--;
+                    modalImage.src = images[currentIndex];
+                }
+            });
+        
+            // Botón siguiente
+            nextButton.addEventListener('click', function () {
+                console.log("hay click")
+                if (images.length > 0 && currentIndex < images.length - 1) {
+                    console.log(`images ${images}`)
+                    currentIndex++;
+                    modalImage.src = images[currentIndex];
+                }
+            });
+        
+            // Asegurarse de actualizar las imágenes cuando se abre un nuevo modal de tabla
+            document.body.addEventListener('click', function (event) {
+                
+                if (event.target.matches('img[data-bs-toggle="modal"]')) {
+                    const imageUrl = event.target.dataset.image;
+                    images = event.target.dataset.images.split(',');
+                    currentIndex = images.indexOf(imageUrl);
+            
+                    // Actualiza la imagen en el modal
+                    modalImage.src = imageUrl;
+            
+                    console.log("Imagen cargada en el modal:", imageUrl);
+                    console.log("Lista de imágenes actualizada:", images);
+                }
+            });
+        });
+        
+        
+        
+        
+        document.addEventListener("DOMContentLoaded", function () {
+            const categorySelect = document.getElementById("categorySelect");
+            const tabContents = document.querySelectorAll(".tab-pane");
+    
+            categorySelect.addEventListener("change", function () {
+                // Ocultar todos los contenidos
+                tabContents.forEach(tab => tab.classList.remove("active", "show"));
+    
+                // Mostrar el contenido seleccionado
+                const selectedValue = categorySelect.value;
+                const selectedTab = document.getElementById(selectedValue);
+                if (selectedTab) {
+                    selectedTab.classList.add("active", "show");
+                }
+            });
+        });
+        document.body.addEventListener('click', function (event) {
+            console.log("Elemento clickeado:", event.target);
+            console.log("Eventos asociados:", getEventListeners(event.target));
+        });
+        
+        
+    </script>
+{% endblock content %} 

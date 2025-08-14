@@ -1,0 +1,40 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-100">
+    {% if messages %}
+    <div class="alert alert-danger">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <h2>Listas de precios</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="cuil">CUIT</label>
+            <input 
+                type="text" 
+                class="form-control" 
+                id="cuil" 
+                name="cuil" 
+                maxlength="11" 
+                pattern="\d*" 
+                required 
+                placeholder="Ingrese su CUIT"
+                title="Solo se permiten números sin guiones, con 11 dígitos.">
+        </div>
+        <button type="submit" class="btn btn-primary mt-3" style="background-color: #ff0000; border-color: #cc0000;">Continuar</button>
+    </form>
+    <div class="mt-4 p-3 text-center" style="background-color: #d9edf7; border: 1px solid #bce8f1; border-radius: 6px;">
+        <p class="mb-2">Para ver la lista, registrate</p>
+        <a href="{% url 'requestclient' %}" class="btn btn-info">Registrarse</a>
+    </div>
+</div>
+
+<a class="wp-link" href="https://wa.me/5491130753001?text=Hola%20mire%20la%20lista%20de%20precios%20y%20quiero%20mas%20informacion">
+    <img src="{% static 'img/logo-wp.png' %}" alt="Logo WhatsApp">
+</a>
+{% endblock %}
